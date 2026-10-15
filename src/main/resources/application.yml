@@ -4,7 +4,7 @@ server:
 
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/urlshortener}
+    url: ${DB_URL:${DATABASE_URL:jdbc:postgresql://localhost:5432/urlshortener}}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
   jpa:
