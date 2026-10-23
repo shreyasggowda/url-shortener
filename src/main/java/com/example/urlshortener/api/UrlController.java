@@ -6,6 +6,10 @@ import com.example.urlshortener.service.UrlService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.time.Instant;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,14 +20,24 @@ public class UrlController {
 
     @PostMapping("/api/urls")
     public ResponseEntity<UrlResponse> create(@Valid @RequestBody CreateUrlRequest request, @org.springframework.security.core.annotation.AuthenticationPrincipal AppUser user, HttpServletRequest httpRequest) {
-        UrlMapping mapping = service.create(request.longUrl(), user);
+        UrlMapping mapping = service.create(request.longUrl(), request.customAlias(), request.expiresAt(), user);
         return ResponseEntity.status(HttpStatus.CREATED).body(UrlResponse.from(mapping, baseUrl(httpRequest)));
+    }
+    @GetMapping("/api/urls")
+    public LinkPage links(@org.springframework.security.core.annotation.AuthenticationPrincipal AppUser user, @RequestParam(required = false) String search, @RequestParam(defaultValue = "all") String status, @RequestParam(required = false) Instant from, @RequestParam(required = false) Instant to, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, HttpServletRequest request) {
+        if (page < 0 || size < 1 || size > 50) throw new org.springframework.web.server.ResponseStatusException(HttpStatus.BAD_REQUEST, "Page must be non-negative and size must be between 1 and 50");
+        Page<UrlMapping> results = service.list(user, search, status, from, to, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
+        return new LinkPage(results.map(mapping -> UrlResponse.from(mapping, baseUrl(request))).getContent(), results.getNumber(), results.getSize(), results.getTotalElements(), results.getTotalPages());
     }
     @GetMapping("/api/urls/{shortCode}/stats")
     public UrlResponse stats(@PathVariable String shortCode, @org.springframework.security.core.annotation.AuthenticationPrincipal AppUser user, HttpServletRequest request) { return UrlResponse.from(service.stats(shortCode, user), baseUrl(request)); }
+    @DeleteMapping("/api/urls/{shortCode}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable String shortCode, @org.springframework.security.core.annotation.AuthenticationPrincipal AppUser user) { service.delete(shortCode, user); }
     @GetMapping("/{shortCode:[A-Za-z0-9]+}")
     public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(service.resolve(shortCode))).build();
     }
     private String baseUrl(HttpServletRequest request) { return request.getRequestURL().toString().replace(request.getRequestURI(), ""); }
+    public record LinkPage(java.util.List<UrlResponse> content, int page, int size, long totalElements, int totalPages) { }
 }

@@ -19,6 +19,8 @@ public class UrlMapping {
     private long clickCount;
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
+    @Column(name = "expires_at")
+    private Instant expiresAt;
 
     protected UrlMapping() { }
     public UrlMapping(Long id, String longUrl, AppUser owner) { this.id = id; this.longUrl = longUrl; this.owner = owner; this.createdAt = Instant.now(); }
@@ -29,4 +31,7 @@ public class UrlMapping {
     public AppUser getOwner() { return owner; }
     public long getClickCount() { return clickCount; }
     public Instant getCreatedAt() { return createdAt; }
+    public Instant getExpiresAt() { return expiresAt; }
+    public void setExpiresAt(Instant expiresAt) { this.expiresAt = expiresAt; }
+    public boolean isExpired() { return expiresAt != null && !expiresAt.isAfter(Instant.now()); }
 }
