@@ -31,6 +31,17 @@ public class UrlService {
         cache.put(mapping.getShortCode(), longUrl, expiresAt);
         return mapping;
     }
+    public String resolve(String shortCode, String referrer, String userAgent, String clientIp) {
+        String longUrl = cache.get(shortCode);
+        if (longUrl == null) {
+            UrlMapping mapping = repository.findByShortCode(shortCode).orElseThrow(() -> new UrlNotFoundException(shortCode));
+            if (mapping.isExpired()) throw new UrlNotFoundException(shortCode);
+            longUrl = mapping.getLongUrl();
+            cache.put(shortCode, longUrl, mapping.getExpiresAt());
+        }
+        clickTracking.recordClick(shortCode, referrer, userAgent, clientIp);
+        return longUrl;
+    }
     public String resolve(String shortCode) {
         String longUrl = cache.get(shortCode);
         if (longUrl == null) {

@@ -13,4 +13,6 @@ public class ApiExceptionHandler {
     ResponseEntity<Map<String, String>> invalid(org.springframework.web.bind.MethodArgumentNotValidException ex) { return ResponseEntity.badRequest().body(Map.of("error", ex.getBindingResult().getAllErrors().get(0).getDefaultMessage())); }
     @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
     ResponseEntity<Map<String, String>> invalidLogin() { return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Incorrect email or password")); }
+    @ExceptionHandler(IllegalArgumentException.class)
+    ResponseEntity<Map<String, String>> invalidArgument(IllegalArgumentException ex) { return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage())); }
 }

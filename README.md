@@ -2,6 +2,10 @@
 
 A Java 17 / Spring Boot 3 URL shortener with PostgreSQL persistence, Redis cache-aside redirects, a Redis-backed token bucket, and asynchronous click tracking.
 
+## Live demo
+
+[Open Shortly on Render](https://url-shortener-app-592t.onrender.com)
+
 ## Run locally
 
 ```bash
@@ -28,7 +32,8 @@ curl http://localhost:8080/actuator/health
 - **Collision-proof codes:** PostgreSQL allocates an ID before the mapping is inserted; its Base62 representation becomes the code.
 - **Fast redirects:** Redis holds `shortCode → longUrl` for one hour. A miss reads PostgreSQL then repopulates Redis (cache-aside).
 - **Abuse protection:** an atomic Lua script implements a per-key token bucket in Redis, using Redis server time so app instances agree.
-- **Click analytics:** the redirect responds immediately, while an `@Async` transaction increments the database count.
+- **Click analytics:** redirect events are persisted asynchronously and aggregated in SQL for dashboard, per-link, referrer, device, and daily-click reporting.
+- **Privacy-aware unique clicks:** a unique visitor is a one-day SHA-256 hash of IP address and user agent. It is not a durable user identity; cookie restrictions, shared networks, and changing user agents can affect the estimate. Referrers may be unavailable due to browser privacy controls, and device classification is approximate.
 
 ## Tests
 
