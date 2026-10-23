@@ -6,37 +6,61 @@
   <meta name="description" content="Create compact links and view their click statistics.">
   <title>Shortly — URL Shortener</title>
   <style>
-    :root { color-scheme: light; --page: #eee5d2; --card: #fbf7ed; --line: #c7b998; --text: #244434; --muted: #667364; --accent: #34724d; --accent-dark: #24593b; --error: #aa3f36; --success: #287c50; }
+    :root { color-scheme: light; --page: #f4efe4; --card: #fffdf8; --soft: #f8f3e8; --line: #d9d0bd; --text: #163d2a; --muted: #657568; --accent: #25734b; --accent-dark: #175a38; --error: #a33a32; --success: #25734b; --radius: 14px; --shadow: 0 10px 28px rgba(45, 56, 35, .08); }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--text); background: radial-gradient(circle at 10% 0%, #cadbbf 0, transparent 32rem), var(--page); }
-    main { width: min(720px, calc(100% - 32px)); margin: 0 auto; padding: 86px 0 64px; }
-    h1 { margin: 0; font-size: clamp(2.5rem, 8vw, 4.5rem); letter-spacing: -.07em; }
+    body { margin: 0; min-height: 100vh; min-width: 320px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--text); background: radial-gradient(circle at 5% 0%, #dcebd8 0, transparent 31rem), var(--page); }
+    .site-header { border-bottom: 1px solid var(--line); background: rgba(255,253,248,.84); backdrop-filter: blur(10px); }
+    .header-inner, main, .site-footer { width: min(1000px, calc(100% - 40px)); margin: 0 auto; }
+    .header-inner { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .brand { display: inline-flex; align-items: center; gap: 9px; color: var(--text); font-size: 1.22rem; font-weight: 800; letter-spacing: -.04em; text-decoration: none; }
+    .brand-mark { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 9px; color: #fff; background: var(--accent); }
+    nav { display: flex; gap: 6px; } nav a { padding: 8px 10px; border-radius: 8px; color: var(--muted); font-size: .92rem; font-weight: 650; text-decoration: none; } nav a:hover, nav a[aria-current="page"] { color: var(--accent); background: #e3f0e5; }
+    .account-menu { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .88rem; }.avatar { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; color: #fff; background: var(--text); font-size: .78rem; font-weight: 800; }
+    main { padding: 56px 0 32px; }.hero { display: flex; justify-content: space-between; align-items: end; gap: 32px; margin-bottom: 30px; }.eyebrow { margin: 0 0 8px; color: var(--accent); font-size: .78rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(2.25rem, 5vw, 3.85rem); letter-spacing: -.065em; line-height: 1.02; }
     h1 span { color: #34724d; }
-    .intro { max-width: 560px; margin: 16px 0 42px; color: var(--muted); font-size: 1.1rem; line-height: 1.6; }
-    .card { padding: clamp(22px, 5vw, 34px); margin-top: 20px; border: 1px solid var(--line); border-radius: 20px; background: color-mix(in srgb, var(--card) 91%, transparent); box-shadow: 0 22px 70px #51462b22; }
+    .intro { max-width: 610px; margin: 15px 0 0; color: var(--muted); font-size: 1.04rem; line-height: 1.6; }.dashboard { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(290px, 1fr); gap: 24px; align-items: start; }.stack { display: grid; gap: 24px; }
+    .card { padding: 26px; margin: 0; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255,253,248,.92); box-shadow: var(--shadow); }.card-header { margin-bottom: 20px; }.supporting-text { margin: 5px 0 0; color: var(--muted); font-size: .9rem; line-height: 1.45; }
     h2 { margin: 0 0 20px; font-size: 1.25rem; }
     label { display: block; margin: 16px 0 8px; color: var(--muted); font-size: .9rem; font-weight: 650; }
-    input { width: 100%; min-height: 49px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; outline: none; color: var(--text); font: inherit; background: #fffdf7; }
-    input:focus { border-color: #34724d; box-shadow: 0 0 0 3px #34724d33; }
+    input { width: 100%; min-height: 46px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px; outline: none; color: var(--text); font: inherit; background: #fffefa; }
+    input:focus, button:focus-visible, a:focus-visible { outline: 3px solid #1d6eaa66; outline-offset: 3px; } input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px #25734b29; }
     .row { display: flex; gap: 12px; align-items: end; }
     .row input { min-width: 0; }
-    button { min-height: 49px; padding: 0 18px; border: 0; border-radius: 10px; cursor: pointer; color: white; font: 700 .95rem inherit; background: var(--accent); transition: background .15s, transform .15s; }
+    button { min-height: 46px; padding: 0 18px; border: 1px solid transparent; border-radius: 10px; cursor: pointer; color: white; font: 700 .95rem inherit; background: var(--accent); transition: background .15s, transform .15s; }
     button:hover { background: var(--accent-dark); } button:active { transform: translateY(1px); } button:disabled { opacity: .65; cursor: wait; }
     .result { display: none; margin-top: 22px; padding: 17px; border: 1px solid #75a883; border-radius: 12px; background: #e7f1df; }
     .result.visible { display: block; } .result p { margin: 0 0 7px; color: var(--success); font-weight: 700; } .result a { color: #24593b; font-weight: 700; overflow-wrap: anywhere; }
     .message { min-height: 22px; margin: 14px 0 0; color: var(--error); font-size: .92rem; } .message.success { color: var(--success); }
-    .stats { display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); } .stats.visible { display: block; }
-    .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } .stat { padding: 13px; border-radius: 10px; background: #f2ecdf; } .stat small { display: block; color: var(--muted); } .stat strong { display: block; margin-top: 5px; overflow-wrap: anywhere; font-size: 1.05rem; }
-    footer { margin-top: 30px; color: var(--muted); text-align: center; font-size: .85rem; } @media (max-width: 520px) { main { padding-top: 52px; } .row { display: block; } .row button { width: 100%; margin-top: 12px; } .stat-grid { grid-template-columns: 1fr; } }
+    .stats { display: none; margin-top: 16px; padding-top: 0; border-top: 0; } .stats.visible { display: block; }
+    .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; } .stat { min-height: 84px; padding: 14px; border: 1px solid #e6dfd0; border-radius: 10px; background: var(--soft); } .stat small { display: block; color: var(--muted); } .stat strong { display: block; margin-top: 5px; overflow-wrap: anywhere; font-size: .95rem; }.quick-list { display: grid; gap: 1px; margin: 0; padding: 0; list-style: none; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; }.quick-list a { display: flex; justify-content: space-between; gap: 12px; padding: 12px 13px; color: var(--text); background: var(--soft); font-size: .9rem; font-weight: 700; text-decoration: none; }.quick-list a:hover { color: var(--accent); background: #e3f0e5; }.quick-list span { color: var(--muted); }
+    .site-footer { display: flex; justify-content: space-between; gap: 20px; padding: 24px 0 34px; border-top: 1px solid var(--line); color: var(--muted); font-size: .82rem; }.footer-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 14px; }.footer-links a { color: inherit; text-decoration: none; }.footer-links a:hover { color: var(--accent); text-decoration: underline; } @media (max-width: 760px) { .header-inner, main, .site-footer { width: min(100% - 32px, 1000px); } nav { display:none; } .hero { display:block; } .dashboard { grid-template-columns: 1fr; } main { padding-top:40px; } } @media (max-width: 520px) { .card { padding:20px; } .row { display:block; } .row button { width:100%; margin-top:12px; } .stat-grid { grid-template-columns:1fr; } .site-footer { display:block; } .footer-links { justify-content:flex-start; margin-top:12px; } .account-menu { display:none; } }
   </style>
 </head>
 <body>
-  <main>
-    <h1>Short links.<br><span>Big reach.</span></h1>
-    <p class="intro">Turn a long URL into a clean, shareable link. Sign in to create and privately manage your links.</p>
+  <header class="site-header"><div class="header-inner"><a class="brand" href="#dashboard" aria-label="Shortly dashboard"><span class="brand-mark" aria-hidden="true">↗</span>Shortly</a><nav aria-label="Primary navigation"><a href="#dashboard" aria-current="page">Dashboard</a><a href="#create-link">My Links</a><a href="#stats-title">Analytics</a></nav><div class="account-menu" aria-label="Account"><span id="header-account">Guest account</span><span class="avatar" aria-hidden="true">S</span></div></div></header>
+  <main id="dashboard">
+    <section class="hero" aria-labelledby="page-title"><div><p class="eyebrow">Link management, simplified</p><h1 id="page-title">Short links.<br><span>Big reach.</span></h1><p class="intro">Create tidy links, track their performance, and keep every destination organized in one calm workspace.</p></div></section>
+    <div class="dashboard"><div class="stack">
+    <section class="card" id="create-link" aria-labelledby="shorten-title">
+      <div class="card-header"><h2 id="shorten-title">Create a short link</h2><p class="supporting-text">Paste a destination to generate a shareable URL.</p></div>
+      <form id="shorten-form">
+        <label for="long-url">Destination URL</label>
+        <input id="long-url" name="longUrl" type="url" placeholder="https://example.com/a/very/long/link" required aria-describedby="create-message">
+        <div class="row"><input aria-hidden="true" tabindex="-1" style="display:none"><button type="submit">Create short link</button></div>
+      </form>
+      <p class="message" id="create-message" role="alert" aria-live="polite"></p>
+      <div class="result" id="create-result"><p>Your short link is ready</p><a id="short-link" href="#"></a><button id="copy-button" type="button" style="margin-top: 13px; min-height: 38px;">Copy link</button></div>
+    </section>
 
-    <section class="card" aria-labelledby="account-title">
-      <h2 id="account-title">Your account</h2>
+    <section class="card" aria-labelledby="stats-title">
+      <div class="card-header"><h2 id="stats-title">Link statistics</h2><p class="supporting-text">Look up clicks and destination details for any short code.</p></div>
+      <form id="stats-form"><label for="short-code">Short code</label><div class="row"><input id="short-code" placeholder="For example: 1aB2" required pattern="[A-Za-z0-9]+" aria-describedby="stats-message"><button type="submit">View statistics</button></div></form>
+      <p class="message" id="stats-message" role="alert" aria-live="polite"></p>
+      <div class="stats" id="stats-result"><div class="stat-grid"><div class="stat"><small>Clicks</small><strong id="click-count"></strong></div><div class="stat"><small>Created</small><strong id="created-at"></strong></div><div class="stat" style="grid-column: 1 / -1"><small>Destination</small><strong id="destination"></strong></div></div></div>
+    </section>
+    </div><aside class="stack" aria-label="Account and quick actions"><section class="card" aria-labelledby="account-title">
+      <div class="card-header"><h2 id="account-title">Your account</h2><p class="supporting-text">Sign in to keep your links private.</p></div>
       <p id="account-status" class="message success">Checking your sign-in status…</p>
       <form id="auth-form">
         <label for="email">Email</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com" required>
@@ -44,55 +68,38 @@
         <div class="row" style="margin-top: 16px"><button type="submit" data-mode="login">Sign in</button><button type="button" id="register-button">Create account</button></div>
       </form>
       <button type="button" id="logout-button" style="display:none">Sign out</button>
-    </section>
-
-    <section class="card" aria-labelledby="shorten-title">
-      <h2 id="shorten-title">Create a short link</h2>
-      <form id="shorten-form">
-        <label for="long-url">Long URL</label>
-        <input id="long-url" name="longUrl" type="url" placeholder="https://example.com/a/very/long/link" required>
-        <div class="row"><input aria-hidden="true" tabindex="-1" style="display:none"><button type="submit">Shorten URL</button></div>
-      </form>
-      <p class="message" id="create-message" role="alert"></p>
-      <div class="result" id="create-result"><p>Your short link is ready</p><a id="short-link" href="#"></a><button id="copy-button" type="button" style="margin-top: 13px; min-height: 38px;">Copy link</button></div>
-    </section>
-
-    <section class="card" aria-labelledby="stats-title">
-      <h2 id="stats-title">Link statistics</h2>
-      <form id="stats-form"><label for="short-code">Short code</label><div class="row"><input id="short-code" placeholder="e.g. 1" required pattern="[A-Za-z0-9]+"><button type="submit">View stats</button></div></form>
-      <p class="message" id="stats-message" role="alert"></p>
-      <div class="stats" id="stats-result"><div class="stat-grid"><div class="stat"><small>Clicks</small><strong id="click-count"></strong></div><div class="stat"><small>Created</small><strong id="created-at"></strong></div><div class="stat" style="grid-column: 1 / -1"><small>Destination</small><strong id="destination"></strong></div></div></div>
-    </section>
-    <footer>Built with Spring Boot · Your links are ready to share</footer>
+    </section><section class="card" aria-labelledby="quick-title"><div class="card-header"><h2 id="quick-title">Quick actions</h2><p class="supporting-text">Get to your next task faster.</p></div><ul class="quick-list"><li><a href="#create-link">Create a new link <span aria-hidden="true">→</span></a></li><li><a href="#stats-title">Check link activity <span aria-hidden="true">→</span></a></li></ul></section></aside></div>
   </main>
+  <footer class="site-footer"><span>© 2026 Shortly. Built for clearer sharing.</span><div class="footer-links"><a href="https://github.com/shreyasggowda/url-shortener">GitHub</a><a href="#">Privacy</a><a href="#">Terms</a><a href="#">About</a></div></footer>
   <script>
     const $ = (id) => document.getElementById(id);
     const message = (id, text, success = false) => { const el = $(id); el.textContent = text; el.className = `message${success ? ' success' : ''}`; };
     const apiError = async (response) => { try { return (await response.json()).error || 'Something went wrong.'; } catch { return 'Something went wrong. Please try again.'; } };
-    const setAccount = (email) => { const signedIn = Boolean(email); $('account-status').textContent = signedIn ? `Signed in as ${email}` : 'Sign in or create an account to manage your links.'; $('account-status').className = 'message success'; $('auth-form').style.display = signedIn ? 'none' : 'block'; $('logout-button').style.display = signedIn ? 'inline-block' : 'none'; };
+    const setAccount = (email) => { const signedIn = Boolean(email); $('account-status').textContent = signedIn ? `Signed in as ${email}` : 'Sign in or create an account to manage your links.'; $('account-status').className = 'message success'; $('auth-form').style.display = signedIn ? 'none' : 'block'; $('logout-button').style.display = signedIn ? 'inline-block' : 'none'; $('header-account').textContent = signedIn ? email : 'Guest account'; };
     const accountRequest = async (mode) => { const response = await fetch(`/api/auth/${mode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: $('email').value, password: $('password').value }) }); if (!response.ok) throw new Error(await apiError(response)); return response.json(); };
     (async () => { try { const response = await fetch('/api/auth/me'); if (response.ok) setAccount((await response.json()).email); else setAccount(null); } catch { setAccount(null); } })();
-    $('auth-form').addEventListener('submit', async (event) => { event.preventDefault(); try { setAccount((await accountRequest('login')).email); } catch (error) { $('account-status').textContent = error.message; $('account-status').className = 'message'; } });
-    $('register-button').addEventListener('click', async () => { try { setAccount((await accountRequest('register')).email); } catch (error) { $('account-status').textContent = error.message; $('account-status').className = 'message'; } });
+    const loading = (button, active, label) => { button.disabled = active; button.textContent = active ? 'Please wait…' : label; };
+    $('auth-form').addEventListener('submit', async (event) => { event.preventDefault(); const button = event.submitter; loading(button, true, 'Sign in'); try { setAccount((await accountRequest('login')).email); } catch (error) { $('account-status').textContent = error.message; $('account-status').className = 'message'; } finally { loading(button, false, 'Sign in'); } });
+    $('register-button').addEventListener('click', async () => { const button = $('register-button'); loading(button, true, 'Create account'); try { setAccount((await accountRequest('register')).email); } catch (error) { $('account-status').textContent = error.message; $('account-status').className = 'message'; } finally { loading(button, false, 'Create account'); } });
     $('logout-button').addEventListener('click', async () => { await fetch('/api/auth/logout', { method: 'POST' }); setAccount(null); });
 
     $('shorten-form').addEventListener('submit', async (event) => {
       event.preventDefault();
-      const button = event.submitter; button.disabled = true; message('create-message', ''); $('create-result').classList.remove('visible');
+      const button = event.submitter; loading(button, true, 'Create short link'); message('create-message', ''); $('create-result').classList.remove('visible');
       try {
         const response = await fetch('/api/urls', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ longUrl: $('long-url').value }) });
         if (!response.ok) throw new Error(await apiError(response));
         const link = await response.json(); $('short-link').href = link.shortUrl; $('short-link').textContent = link.shortUrl; $('short-code').value = link.shortCode; $('create-result').classList.add('visible');
-      } catch (error) { message('create-message', error.message); } finally { button.disabled = false; }
+      } catch (error) { message('create-message', error.message); } finally { loading(button, false, 'Create short link'); }
     });
     $('copy-button').addEventListener('click', async () => { await navigator.clipboard.writeText($('short-link').href); $('copy-button').textContent = 'Copied!'; setTimeout(() => $('copy-button').textContent = 'Copy link', 1500); });
     $('stats-form').addEventListener('submit', async (event) => {
-      event.preventDefault(); const button = event.submitter; button.disabled = true; message('stats-message', ''); $('stats-result').classList.remove('visible');
+      event.preventDefault(); const button = event.submitter; loading(button, true, 'View statistics'); message('stats-message', ''); $('stats-result').classList.remove('visible');
       try {
         const code = $('short-code').value.trim(); const response = await fetch(`/api/urls/${encodeURIComponent(code)}/stats`);
         if (!response.ok) throw new Error(await apiError(response));
         const stats = await response.json(); $('click-count').textContent = stats.clickCount; $('created-at').textContent = new Date(stats.createdAt).toLocaleString(); $('destination').textContent = stats.longUrl; $('stats-result').classList.add('visible');
-      } catch (error) { message('stats-message', error.message); } finally { button.disabled = false; }
+      } catch (error) { message('stats-message', error.message); } finally { loading(button, false, 'View statistics'); }
     });
   </script>
 </body>
