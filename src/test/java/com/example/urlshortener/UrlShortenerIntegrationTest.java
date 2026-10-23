@@ -32,7 +32,9 @@ class UrlShortenerIntegrationTest {
         registry.add("spring.data.redis.port", () -> REDIS.getMappedPort(6379));
     }
     @Test void createsAndRedirectsWithRealPostgresAndRedis() throws Exception {
-        String body = mvc.perform(post("/api/urls").header("X-API-Key", "test-key").contentType(MediaType.APPLICATION_JSON).content("{\"longUrl\":\"https://example.com/a\"}"))
+        org.springframework.mock.web.MockHttpSession session = (org.springframework.mock.web.MockHttpSession) mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"test@example.com\",\"password\":\"correct-horse-battery-staple\"}"))
+            .andExpect(status().isCreated()).andReturn().getRequest().getSession(false);
+        String body = mvc.perform(post("/api/urls").session(session).contentType(MediaType.APPLICATION_JSON).content("{\"longUrl\":\"https://example.com/a\"}"))
             .andExpect(status().isCreated()).andExpect(jsonPath("$.shortCode", not(emptyString()))).andReturn().getResponse().getContentAsString();
         String code = body.replaceAll(".*\\\"shortCode\\\":\\\"([^\\\"]+)\\\".*", "$1");
         mvc.perform(get("/" + code)).andExpect(status().isFound()).andExpect(header().string("Location", "https://example.com/a"));

@@ -1,0 +1,8 @@
+CREATE TABLE app_users (
+    id BIGSERIAL PRIMARY KEY,
+    email VARCHAR(254) NOT NULL UNIQUE,
+    password_hash VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+ALTER TABLE urls ADD COLUMN owner_user_id BIGINT REFERENCES app_users(id);
+ALTER TABLE urls ALTER COLUMN api_key_owner DROP NOT NULL;
